@@ -1,0 +1,9 @@
+[package]
+name = "evga-z12-keys"
+version = "1.0.0"
+edition = "2024"
+license = "MIT"
+description = "Configure the EVGA Z12 keyboard E-keys on Linux"
+
+[dependencies]
+hidapi = { version = "2.6", default-features = false, features = ["linux-shared-hidraw"] }
