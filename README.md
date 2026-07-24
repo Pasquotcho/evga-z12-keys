@@ -52,4 +52,9 @@ sudo evga-z12-keys disable E1
 sudo evga-z12-keys disable all
 ```
 
-Licensed under the [MIT License](LICENSE).
+## Licenses
+
+This project is licensed under the [MIT License](LICENSE).
+
+Licenses of third-party dependencies are listed in
+[THIRD_PARTY_LICENSES.html](THIRD_PARTY_LICENSES.html).
