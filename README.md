@@ -7,7 +7,7 @@ Tested device: EVGA Z12 with USB ID `3842:2622`.
 
 ## Install
 
-Download the binary from the [v1.0.0 release](../../releases/tag/v1.0.0), then:
+Download the binary from the [v1.1.0 release](../../releases/tag/v1.1.0), then:
 
 ```sh
 sudo install -Dm755 evga-z12-keys /usr/local/bin/evga-z12-keys

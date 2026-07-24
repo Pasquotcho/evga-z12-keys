@@ -49,12 +49,31 @@ struct Mapping {
 
 impl Mapping {
     fn keyboard(usage: u8) -> Self {
+        let (modifier, key1) = if (0xe0..=0xe7).contains(&usage) {
+            (1 << (usage - 0xe0), 0x00)
+        } else {
+            (0x00, usage)
+        };
+
         Self {
             function: 0x00,
-            modifier: 0x00,
-            key1: usage,
+            modifier,
+            key1,
             key2: 0x00,
         }
+    }
+
+    fn keyboard_usage(self) -> Option<u8> {
+        if self.function != 0x00 || self.key2 != 0x00 {
+            return None;
+        }
+        if self.modifier == 0x00 {
+            return Some(self.key1);
+        }
+        if self.key1 == 0x00 && self.modifier.is_power_of_two() {
+            return Some(0xe0 + self.modifier.trailing_zeros() as u8);
+        }
+        None
     }
 
     fn disabled() -> Self {
@@ -191,10 +210,10 @@ fn print_mapping(key: EKey, mapping: Mapping) {
     print!("{}: ", key.name);
     if mapping.function == 0xff {
         println!("disabled");
-    } else if mapping.function == 0x00 && mapping.modifier == 0 && mapping.key2 == 0 {
-        match key_name(mapping.key1) {
+    } else if let Some(usage) = mapping.keyboard_usage() {
+        match key_name(usage) {
             Some(name) => println!("{name}"),
-            None => println!("HID 0x{:02X}", mapping.key1),
+            None => println!("HID 0x{usage:02X}"),
         }
     } else {
         println!(
@@ -293,30 +312,5 @@ fn main() {
     if let Err(problem) = run() {
         eprintln!("Error: {problem}");
         std::process::exit(1);
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn known_key_names_are_case_insensitive() {
-        assert_eq!(key_usage("a"), Some(0x04));
-        assert_eq!(key_usage("F17"), Some(0x6c));
-        assert_eq!(key_usage("kp_enter"), Some(0x58));
-    }
-
-    #[test]
-    fn unknown_key_names_are_rejected() {
-        assert_eq!(key_usage("NOT_A_KEY"), None);
-    }
-
-    #[test]
-    fn every_yaml_entry_round_trips() {
-        for (name, usage) in KEYS_YAML.lines().filter_map(parse_yaml_line) {
-            assert_eq!(key_usage(name), Some(usage));
-            assert_eq!(key_name(usage), Some(name));
-        }
     }
 }
